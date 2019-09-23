@@ -8,6 +8,7 @@ set -e
 payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
 prefix="$(echo "$payload" | jq -r '.source.path // ""')"
+endpoint=$(echo "$payload" | jq -r '.source.endpoint // "http://s3.amazonaws.com"')
 
 # export for `aws` cli
 AWS_ACCESS_KEY_ID=$(echo "$payload" | jq -r '.source.access_key_id // empty')
@@ -24,6 +25,6 @@ fi
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
 # Consider the most recent LastModified timestamp as the most recent version.
-timestamps=$(aws s3api list-objects --bucket $bucket --prefix "$prefix" --query 'Contents[].{LastModified: LastModified}')
+timestamps=$(aws --endpoint-url=$endpoint s3api list-objects --bucket $bucket --prefix "$prefix" --query 'Contents[].{LastModified: LastModified}')
 recent="$(echo $timestamps | jq -r 'max_by(.LastModified)')"
 echo "[$recent]"

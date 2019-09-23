@@ -2,4 +2,4 @@
 
 set -e
 
-docker build -t 18fgsa/s3-resource-simple .
+docker build -t cyber-andy/s3-resource-simple .
