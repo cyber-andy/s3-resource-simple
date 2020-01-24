@@ -18,7 +18,7 @@ fi
 payload=`cat`
 bucket=$(echo "$payload" | jq -r '.source.bucket')
 path=$(echo "$payload" | jq -r '.source.path // ""')
-options=$(echo "$payload" | jq -r '.source.options // [] | join(" ")')
+options=$(echo "$payload" | jq -r '.params.options // [] | join(" ")')
 endpoint=$(echo "$payload" | jq -r '.source.endpoint // "http://s3.amazonaws.com"')
 
 # export for `aws` cli
