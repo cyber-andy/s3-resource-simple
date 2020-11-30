@@ -21,6 +21,11 @@ path=$(echo "$payload" | jq -r '.source.path // ""')
 options=$(echo "$payload" | jq -r '.params.options // [] | join(" ")')
 target=$(echo "$payload" | jq -r '.source.target')
 endpoint=$(echo "$payload" | jq -r '.source.endpoint // "http://s3.amazonaws.com"')
+skip_ssl="$(echo "$payload" | jq -r '.source.skip_ssl_verification // ""')"
+
+if [ -n $skip_ssl ] && [ $skip_ssl = 'true' ]; then
+  export no_ssl="--no-verify-ssl"
+fi
 
 # export for `aws` cli
 AWS_ACCESS_KEY_ID=$(echo "$payload" | jq -r '.source.access_key_id // empty')
@@ -37,7 +42,7 @@ fi
 [ -n "$AWS_DEFAULT_REGION" ] && export AWS_DEFAULT_REGION
 
 echo "Uploading to S3..."
-eval aws --endpoint-url=$endpoint s3 sync $source/$target "s3://$bucket/$path" $options
+eval aws ${no_ssl:-} --endpoint-url=$endpoint s3 sync $source/$target "s3://$bucket/$path" $options
 echo "...done."
 
 source "$(dirname $0)/emit.sh" >&3
